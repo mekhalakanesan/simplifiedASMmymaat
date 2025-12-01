@@ -1,1 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Seizure Medication (ASM) Adherence Checklist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for Inter font and general styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        .question-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .score-box {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
 
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-800 tracking-tight">
+                Anti-Seizure Medication (ASM) Adherence Checklist
+            </h1>
+            <p class="text-lg text-gray-600 mt-2">
+                Simplified 8-Question Screening Tool for Seizure Control
+            </p>
+        </header>
+
+        <!-- Question List -->
+        <div id="questionnaire" class="space-y-6">
+            <!-- Questions will be generated here by JavaScript -->
+        </div>
+
+        <!-- Submission Button -->
+        <div class="mt-10 text-center">
+            <button onclick="calculateScore()" class="w-full sm:w-1/2 px-8 py-3 bg-indigo-600 text-white font-semibold text-lg rounded-xl hover:bg-indigo-700 transition duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+                Calculate Compliance Score
+            </button>
+        </div>
+
+        <!-- Result Box -->
+        <div id="result-container" class="mt-12 hidden">
+            <div id="score-box" class="score-box p-6 sm:p-8 border-4 border-dashed rounded-xl text-center">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Your Adherence Assessment</h2>
+                <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
+                    <div class="text-4xl font-extrabold p-4 rounded-lg bg-gray-100 shadow-inner">
+                        <span id="score-display" class="text-blue-600">0</span> / 8
+                    </div>
+                    <div>
+                        <p id="grade-label" class="text-xl font-semibold mb-2"></p>
+                        <p id="recommendation-text" class="text-gray-700 max-w-lg mx-auto"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grading Legend -->
+        <div class="mt-12 pt-6 border-t border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">Compliance Grading Legend (Score out of 8)</h3>
+            <ul class="space-y-2 text-gray-600">
+                <li class="p-3 bg-green-50 rounded-lg">
+                    <span class="font-bold text-green-600">7 - 8 Points:</span> High Compliance. Keep up the excellent work!
+                </li>
+                <li class="p-3 bg-yellow-50 rounded-lg">
+                    <span class="font-bold text-yellow-600">5 - 6 Points:</span> Moderate Compliance. Occasional lapses can increase the risk of breakthrough seizures. Focus on improving consistency.
+                </li>
+                <li class="p-3 bg-red-50 rounded-lg">
+                    <span class="font-bold text-red-600">0 - 4 Points:</span> Poor Compliance. Significant barriers to adherence are likely present. Discuss your regimen with your neurologist or pharmacist immediately.
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            "In the past month, did you miss taking your Anti-Seizure Medication (ASM) as prescribed (e.g., skip a dose, or take it alternately)?",
+            "In the past month, have you ever forgotten to take your ASM dose?",
+            "Have you stopped or reduced your ASM because you felt seizure-free or thought the medication was unnecessary?",
+            "Have you reduced your dose because you were worried about side effects (or potential long-term harm to your body)?",
+            "Are you uncertain about the correct dosage, frequency, or timing for any of your Anti-Seizure Medications?",
+            "Have you missed an appointment or been late to refill your medication supply in the last three months, leading to running out?",
+            "Do you rely solely on someone else to remind you, and sometimes miss your ASM dose if they don't?",
+            "Do you feel you have trouble managing your medication (e.g., keeping track of timing, handling complex schedules, or running out)?",
+        ];
+
+        // Function to generate the questionnaire UI
+        function renderQuestions() {
+            const container = document.getElementById('questionnaire');
+            questions.forEach((q, index) => {
+                const qNum = index + 1;
+                const card = document.createElement('div');
+                card.className = 'question-card p-5 bg-white rounded-xl shadow-md';
+                card.innerHTML = `
+                    <p class="text-lg font-medium text-gray-900 mb-4">
+                        <span class="font-bold text-indigo-600 mr-2">${qNum}.</span> ${q}
+                    </p>
+                    <div class="flex space-x-4">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="q${qNum}" value="0" class="form-radio h-5 w-5 text-red-600 border-red-500 focus:ring-red-500" required>
+                            <span class="ml-2 text-red-600 font-semibold">Yes</span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="q${qNum}" value="1" class="form-radio h-5 w-5 text-green-600 border-green-500 focus:ring-green-500" required>
+                            <span class="ml-2 text-green-600 font-semibold">No</span>
+                        </label>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Function to calculate the score and display results
+        function calculateScore() {
+            let totalScore = 0;
+            let allAnswered = true;
+
+            questions.forEach((q, index) => {
+                const qNum = index + 1;
+                const selected = document.querySelector(`input[name="q${qNum}"]:checked`);
+                
+                if (selected) {
+                    // Score: No (value="1") means adherence, Yes (value="0") means non-adherence.
+                    totalScore += parseInt(selected.value, 10);
+                } else {
+                    allAnswered = false;
+                }
+            });
+
+            if (!allAnswered) {
+                // Custom modal/message box replacement for alert()
+                showFeedbackModal("Please answer all 8 questions before calculating your score.");
+                return;
+            }
+
+            const resultContainer = document.getElementById('result-container');
+            const scoreBox = document.getElementById('score-box');
+            const scoreDisplay = document.getElementById('score-display');
+            const gradeLabel = document.getElementById('grade-label');
+            const recommendationText = document.getElementById('recommendation-text');
+            
+            scoreDisplay.textContent = totalScore;
+            resultContainer.classList.remove('hidden');
+
+            let grade = '';
+            let color = '';
+            let advice = '';
+
+            // Grading Logic (Max Score: 8)
+            if (totalScore >= 7) {
+                grade = 'High Compliance';
+                color = 'border-green-500';
+                advice = 'Excellent adherence! Consistent medication use is critical for seizure control and preventing breakthrough seizures. Keep up the excellent work!';
+            } else if (totalScore >= 5) {
+                grade = 'Moderate Compliance';
+                color = 'border-yellow-500';
+                advice = 'Moderate Compliance. Occasional lapses can increase the risk of breakthrough seizures. Focus on finding better consistency (e.g., using pillboxes, setting alarms) to maintain stable drug levels.';
+            } else { // 0 to 4
+                grade = 'Poor Compliance';
+                color = 'border-red-500';
+                advice = 'Poor Compliance. Non-adherence to anti-seizure medication can lead to dangerous breakthrough seizures and loss of seizure control. Please contact your neurologist or pharmacist immediately to discuss barriers and stabilize your regimen.';
+            }
+
+            // Update UI elements
+            scoreBox.className = `score-box p-6 sm:p-8 ${color} border-4 border-dashed rounded-xl text-center`;
+            scoreDisplay.className = `text-4xl font-extrabold p-4 rounded-lg bg-gray-100 shadow-inner ${color.replace('border-', 'text-')}`;
+            gradeLabel.textContent = grade;
+            gradeLabel.className = `text-xl font-bold mb-2 ${color.replace('border-', 'text-')}`;
+            recommendationText.textContent = advice;
+
+            // Scroll to the result
+            scoreBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // Modal logic (to replace alert())
+        function showFeedbackModal(message) {
+            const modal = document.createElement('div');
+            modal.id = 'feedback-modal';
+            modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl shadow-2xl p-6 w-11/12 max-w-sm transform scale-100 transition-transform duration-300">
+                    <h3 class="text-xl font-bold text-red-600 mb-4">Action Required</h3>
+                    <p class="text-gray-700 mb-6">${message}</p>
+                    <button onclick="document.getElementById('feedback-modal').remove()" class="w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">
+                        Got It
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Initialize the questionnaire
+        window.onload = renderQuestions;
+    </script>
+</body>
+</html>
